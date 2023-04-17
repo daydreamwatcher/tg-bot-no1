@@ -1,10 +1,10 @@
 package com.project.ddw.tgbot.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -40,19 +40,21 @@ public class MessageProcessor {
     public UserInfo processMessage(@NotNull Update update) {
         UserInfo user = new UserInfo();
         if(update.hasMessage()) {
-            long chatId = update.getMessage().getChatId();
-            user.id = update.getMessage().getFrom().getId();
-            user.name = update.getMessage().getFrom().getFirstName();
+            Message msg = update.getMessage();
+            long chatId = msg.getChatId();
+            user.id = msg.getFrom().getId();
+            user.name = msg.getFrom().getFirstName();
 
-            if (update.getMessage().hasText()) {
-                String receivedMessage = update.getMessage().getText();
+            if (msg.hasText()) {
+                String receivedMessage = msg.getText();
                 botAnswerUtils(receivedMessage, chatId, user.name);
             }
         } else if (update.hasCallbackQuery()) {
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-            user.id = update.getCallbackQuery().getFrom().getId();
-            user.name = update.getCallbackQuery().getFrom().getFirstName();
-            String receivedMessage = update.getCallbackQuery().getData();
+            CallbackQuery cQuery = update.getCallbackQuery();
+            long chatId = cQuery.getMessage().getChatId();
+            user.id = cQuery.getFrom().getId();
+            user.name = cQuery.getFrom().getFirstName();
+            String receivedMessage = cQuery.getData();
 
             botAnswerUtils(receivedMessage, chatId, user.name);
         }
@@ -74,7 +76,7 @@ public class MessageProcessor {
     private void startBot(long chatId, String user) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        message.setText("Hello, " + user + "! I'm a Counter bot.");
+        message.setText(BotCommands.GREETING_MSG.format(new String[]{user}));
         message.setReplyMarkup(Buttons.inlineMarkup());
     
         try {

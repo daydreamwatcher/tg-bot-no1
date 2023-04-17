@@ -1,5 +1,6 @@
 package com.project.ddw.tgbot.components;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
@@ -17,4 +18,5 @@ public interface BotCommands {
             "The following commands are available:\n\n" +
             "/start - start the bot\n" +
             "/help - help menu";
+    MessageFormat GREETING_MSG = new MessageFormat("Hello, {0}! I''m a Counter bot.");
 }
